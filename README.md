@@ -1,6 +1,6 @@
 # Esse Hooks Extension
 
-This gem is part of the [esse](https://github.com/marcosgz/esse) project. It provides a plugin to add hooks to the [esse-active_record](https://github.com/marcosgz/esse-active_record) and [esse-sequel](https://github.com/marcosgz/esse-sequel) plugins.
+This gem is an internal component for the [esse](https://github.com/marcosgz/esse) project. It provides a plugin to add hooks to the [esse-active_record](https://github.com/marcosgz/esse-active_record) and [esse-sequel](https://github.com/marcosgz/esse-sequel) plugins.
 
 ## Installation
 
@@ -20,7 +20,7 @@ Or install it yourself as:
 
 ## Usage
 
-To use the hooks, you need to include the mixin in your module or class and define the hooks you want to use.
+Using the `esse-active_record` as example. It adds hooks to the `Esse::ActiveRecord::Hooks` module.
 
 ```ruby
 module Esse::ActiveRecord::Hooks
@@ -28,7 +28,7 @@ module Esse::ActiveRecord::Hooks
 end
 ```
 
-Now you can use the hooks to change activeness of the indexing process.
+and then you can use the hooks to change activeness of the indexing process.
 
 ```ruby
 Esse::ActiveRecord::Hooks.disable!
@@ -53,6 +53,16 @@ Esse::ActiveRecord::Hooks.enable!(UsersIndex.repo)
 Esse::ActiveRecord::Hooks.without_indexing(AccountsIndex, UsersIndex.repo) do
   10.times { User.create! }
 end
+```
+
+In case you are using both `esse-active_record` and `esse-sequel` plugins, you can use the `Esse::Hooks` module directly to interact with both hooks at the same time.
+
+```ruby
+Esse::Hooks.disable!
+Esse::Hooks.with_indexing do
+  10.times { User.create! }
+end
+Esse::Hooks.enable!
 ```
 
 
