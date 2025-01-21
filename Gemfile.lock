@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    esse-hooks (0.0.1.beta1)
+    esse-hooks (0.0.1)
       esse (>= 0.3.0)
 
 GEM
