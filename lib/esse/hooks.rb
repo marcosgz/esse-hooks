@@ -38,6 +38,8 @@ module Esse
     %i[
       enable!
       disable!
+      with_indexing
+      with_indexing_for_model
       without_indexing
       without_indexing_for_model
     ].each do |method_name|

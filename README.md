@@ -32,6 +32,10 @@ Now you can use the hooks to change activeness of the indexing process.
 
 ```ruby
 Esse::ActiveRecord::Hooks.disable!
+Esse::ActiveRecord::Hooks.with_indexing do
+  10.times { User.create! }
+end
+
 Esse::ActiveRecord::Hooks.enable!
 Esse::ActiveRecord::Hooks.without_indexing do
   10.times { User.create! }
@@ -42,6 +46,9 @@ or by some specific list of index or index's repository
 
 ```ruby
 Esse::ActiveRecord::Hooks.disable!(UsersIndex.repo)
+Esse::ActiveRecord::Hooks.with_indexing(AccountsIndex, UsersIndex.repo) do
+  10.times { User.create! }
+end
 Esse::ActiveRecord::Hooks.enable!(UsersIndex.repo)
 Esse::ActiveRecord::Hooks.without_indexing(AccountsIndex, UsersIndex.repo) do
   10.times { User.create! }

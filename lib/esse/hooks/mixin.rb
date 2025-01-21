@@ -123,6 +123,19 @@ class Esse::Hooks::Mixin < Module
       state[:repos] = state_before_disable
     end
 
+    # Enable the indexing callbacks execution for the block execution.
+    # Example:
+    #  Esse::ActiveRecord::Hooks.with_indexing { User.create! }
+    #  Esse::ActiveRecord::Hooks.with_indexing(UsersIndex, AccountsIndex.repo(:user)) { User.create! }
+    def with_indexing(*repos)
+      state_before_enable = state[:repos].dup
+      enable!(*repos)
+
+      yield
+    ensure
+      state[:repos] = state_before_enable
+    end
+
     # Disable model indexing callbacks execution for the block execution for the given model.
     # Example:
     #  BroadcastChanges.without_indexing_for_model(User) { }
@@ -136,6 +149,22 @@ class Esse::Hooks::Mixin < Module
         state[:models].delete(model_class)
       else
         state[:models][model_class] = state_before_disable
+      end
+    end
+
+    # Enable model indexing callbacks execution for the block execution for the given model.
+    # Example:
+    #  BroadcastChanges.with_indexing_for_model(User) { }
+    #  BroadcastChanges.with_indexing_for_model(User, :datasync, :other) { }
+    def with_indexing_for_model(model_class, *repos)
+      state_before_enable = state[:models].dig(model_class).dup
+      enable_model!(model_class, *repos)
+      yield
+    ensure
+      if state_before_enable.nil?
+        state[:models].delete(model_class)
+      else
+        state[:models][model_class] = state_before_enable
       end
     end
 

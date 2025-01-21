@@ -140,4 +140,42 @@ RSpec.describe Esse::Hooks do
       end
     end
   end
+
+  describe ".with_indexing" do
+    context "when no hooks are registered" do
+      it "does nothing" do
+        expect { described_class.with_indexing }.not_to raise_error
+      end
+    end
+
+    context "when hooks are registered" do
+      let(:mixin) { described_class[store_key: :foo] }
+
+      it "calls the mixin method" do
+        allow(mixin).to receive(:with_indexing)
+        described_class.with_indexing
+        expect(mixin).to have_received(:with_indexing)
+      end
+    end
+  end
+
+  describe ".with_indexing_for_model" do
+    let(:model) { double }
+
+    context "when no hooks are registered" do
+      it "does nothing" do
+        expect { described_class.with_indexing_for_model(model) }.not_to raise_error
+      end
+    end
+
+    context "when hooks are registered" do
+      let(:mixin) { described_class[store_key: :foo] }
+
+      it "calls the mixin method" do
+        allow(mixin).to receive(:with_indexing_for_model)
+        described_class.with_indexing_for_model(model)
+        expect(mixin).to have_received(:with_indexing_for_model).with(model)
+      end
+    end
+  end
 end

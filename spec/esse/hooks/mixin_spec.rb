@@ -235,6 +235,55 @@ RSpec.describe Esse::Hooks::Mixin do
     end
   end
 
+  describe ".with_indexing" do
+    specify do
+      hook_mixin.disable!
+      expect(hook_mixin.disabled?).to be true
+      hook_mixin.with_indexing do
+        expect(hook_mixin.enabled?).to be true
+        expect(hook_mixin.disabled?).to be false
+      end
+      expect(hook_mixin.disabled?).to be true
+    end
+
+    specify do
+      hook_mixin.disable!
+      expect(hook_mixin.disabled?).to be true
+      hook_mixin.with_indexing(AnimalsIndex::Cat, UsersIndex::User) do
+        expect(hook_mixin.enabled?(AnimalsIndex::Cat)).to be true
+        expect(hook_mixin.enabled?(UsersIndex::User)).to be true
+        expect(hook_mixin.enabled?(AnimalsIndex::Dog)).to be false
+      end
+      expect(hook_mixin.enabled?(UsersIndex::User)).to be false
+      expect(hook_mixin.enabled?(AnimalsIndex::Cat)).to be false
+      expect(hook_mixin.enabled?(AnimalsIndex::Dog)).to be false
+    end
+
+    specify do
+      hook_mixin.disable!
+      expect(hook_mixin.disabled?).to be true
+      hook_mixin.with_indexing(AnimalsIndex) do
+        expect(hook_mixin.enabled?(AnimalsIndex)).to be true
+        expect(hook_mixin.enabled?(AnimalsIndex::Cat)).to be true
+        expect(hook_mixin.enabled?(AnimalsIndex::Dog)).to be true
+        expect(hook_mixin.enabled?(UsersIndex::User)).to be false
+        expect(hook_mixin.enabled?(UsersIndex)).to be false
+      end
+      expect(hook_mixin.enabled?(UsersIndex::User)).to be false
+      expect(hook_mixin.enabled?(AnimalsIndex::Cat)).to be false
+      expect(hook_mixin.enabled?(AnimalsIndex::Dog)).to be false
+    end
+
+    specify do
+      expect(hook_mixin.enabled?).to be true
+      hook_mixin.with_indexing do
+        expect(hook_mixin.enabled?).to be true
+        expect(hook_mixin.disabled?).to be false
+      end
+      expect(hook_mixin.enabled?).to be true
+    end
+  end
+
   describe ".enable_model! and .disable_model!" do
     it "raises an error if the model class does not registered" do
       expect {
@@ -309,6 +358,38 @@ RSpec.describe Esse::Hooks::Mixin do
       hook_mixin.without_indexing_for_model(animal_model, AnimalsIndex::Cat) do
         expect(hook_mixin.enabled_for_model?(animal_model, AnimalsIndex::Cat)).to be false
         expect(hook_mixin.enabled_for_model?(animal_model, AnimalsIndex::Dog)).to be false
+      end
+      expect(hook_mixin.enabled_for_model?(animal_model, AnimalsIndex::Cat)).to be true
+      expect(hook_mixin.enabled_for_model?(animal_model, AnimalsIndex::Dog)).to be false
+    end
+  end
+
+  describe ".with_indexing_for_model" do
+    specify do
+      hook_mixin.disable_model!(animal_model)
+      expect(hook_mixin.enabled_for_model?(animal_model)).to be false
+      hook_mixin.with_indexing_for_model(animal_model) do
+        expect(hook_mixin.enabled_for_model?(animal_model)).to be true
+      end
+      expect(hook_mixin.enabled_for_model?(animal_model)).to be false
+    end
+
+    specify do
+      hook_mixin.disable_model!(animal_model, AnimalsIndex::Cat)
+      expect(hook_mixin.enabled_for_model?(animal_model, AnimalsIndex::Cat)).to be false
+      hook_mixin.with_indexing_for_model(animal_model, AnimalsIndex::Cat) do
+        expect(hook_mixin.enabled_for_model?(animal_model, AnimalsIndex::Cat)).to be true
+      end
+      expect(hook_mixin.enabled_for_model?(animal_model, AnimalsIndex::Cat)).to be false
+    end
+
+    it "reverts the to initial state after block execution" do
+      hook_mixin.disable_model!(animal_model, AnimalsIndex::Dog)
+      expect(hook_mixin.enabled_for_model?(animal_model, AnimalsIndex::Cat)).to be true
+      expect(hook_mixin.enabled_for_model?(animal_model, AnimalsIndex::Dog)).to be false
+      hook_mixin.with_indexing_for_model(animal_model, AnimalsIndex::Dog) do
+        expect(hook_mixin.enabled_for_model?(animal_model, AnimalsIndex::Cat)).to be true
+        expect(hook_mixin.enabled_for_model?(animal_model, AnimalsIndex::Dog)).to be true
       end
       expect(hook_mixin.enabled_for_model?(animal_model, AnimalsIndex::Cat)).to be true
       expect(hook_mixin.enabled_for_model?(animal_model, AnimalsIndex::Dog)).to be false
