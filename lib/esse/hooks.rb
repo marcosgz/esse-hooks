@@ -3,7 +3,7 @@
 require "esse"
 require_relative "hooks/version"
 require_relative "hooks/mixin"
-require_relative "hooks/primitives/string"
+require_relative "hooks/primitive/string"
 
 module Esse
   # Esse::Hooks is a module that extends Esse with hooks capabilities.

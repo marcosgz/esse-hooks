@@ -12,7 +12,7 @@ rescue LoadError
   # noop
 end
 
-module Esse::Hooks::Primitives
+module Esse::Hooks::Primitive
   class String < ::String
     def classify
       new_str = if defined?(Dry::Inflector)

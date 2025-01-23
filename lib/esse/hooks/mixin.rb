@@ -169,11 +169,11 @@ class Esse::Hooks::Mixin < Module
     end
 
     def resolve_index_repository(name)
-      index_name, repo_name = Esse::Hooks::Primitives::String.new(name).underscore.split("::").join("/").split(":", 2)
+      index_name, repo_name = Esse::Hooks::Primitive::String.new(name).underscore.split("::").join("/").split(":", 2)
       if index_name !~ /(I|_i)ndex$/ && index_name !~ /_index\/([\w_]+)$/
         index_name = format("%<index_name>s_index", index_name: index_name)
       end
-      klass = Esse::Hooks::Primitives::String.new(index_name).classify.constantize
+      klass = Esse::Hooks::Primitive::String.new(index_name).classify.constantize
       return klass if klass <= Esse::Repository
 
       repo_name ? klass.repo(repo_name) : klass.repo
