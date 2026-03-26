@@ -36,7 +36,7 @@ class Esse::Hooks::Mixin < Module
     # @return [void]
     def enable!(*repos)
       filter_repositories(*repos).each do |repo|
-        state[:repos][repo] = true
+        state[:repos][repo_state_key(repo)] = true
       end
     end
 
@@ -45,7 +45,7 @@ class Esse::Hooks::Mixin < Module
     # @return [void]
     def disable!(*repos)
       filter_repositories(*repos).each do |repo|
-        state[:repos][repo] = false
+        state[:repos][repo_state_key(repo)] = false
       end
     end
 
@@ -54,7 +54,7 @@ class Esse::Hooks::Mixin < Module
     # @param repos [Array<String, Esse::Index, Esse::Repo>]
     # @return [Boolean]
     def disabled?(*repos)
-      filter_repositories(*repos).all? { |repo| !state[:repos][repo] }
+      filter_repositories(*repos).all? { |repo| !state[:repos][repo_state_key(repo)] }
     end
 
     # Check if the given repository is enabled for indexing. If no repository is specified, all repositories will be checked.
@@ -62,7 +62,7 @@ class Esse::Hooks::Mixin < Module
     # @param repos [Array<String, Esse::Index, Esse::Repo>]
     # @return [Boolean]
     def enabled?(*repos)
-      filter_repositories(*repos).all? { |repo| state[:repos][repo] }
+      filter_repositories(*repos).all? { |repo| state[:repos][repo_state_key(repo)] }
     end
 
     # Enable model indexing callbacks for the given model. If no repository is specified, all repositories will be enabled.
@@ -74,7 +74,7 @@ class Esse::Hooks::Mixin < Module
     def enable_model!(model_class, *repos)
       ensure_registered_model_class!(model_class)
       filter_model_repositories(model_class, *repos).each do |repo|
-        state[:models][model_class][repo] = true
+        state[:models][model_class][repo_state_key(repo)] = true
       end
     end
 
@@ -87,7 +87,7 @@ class Esse::Hooks::Mixin < Module
     def disable_model!(model_class, *repos)
       ensure_registered_model_class!(model_class)
       filter_model_repositories(model_class, *repos).each do |repo|
-        state[:models][model_class][repo] = false
+        state[:models][model_class][repo_state_key(repo)] = false
       end
     end
 
@@ -106,7 +106,7 @@ class Esse::Hooks::Mixin < Module
       return false unless registered_model_class?(model_class)
 
       filter_model_repositories(model_class, *repos).all? do |repo|
-        state.dig(:models, model_class, repo) != false
+        state.dig(:models, model_class, repo_state_key(repo)) != false
       end
     end
 
@@ -239,13 +239,38 @@ class Esse::Hooks::Mixin < Module
     # }
     def state
       global_store[store_key] ||= {
-        repos: all_repos.map { |k| [k, true] }.to_h, # Control global state of the index repository level
+        repos: all_repos.map { |k| [repo_state_key(k), true] }.to_h, # Control global state of the index repository level
         models: Hash.new { |h, k| h[k] = {} } # Control the state of the model & index repository level
       }
+      normalize_state!(global_store[store_key])
     end
 
     def global_store
       Thread.current
+    end
+
+    def repo_state_key(repo)
+      repo.to_s
+    end
+
+    def normalize_state!(raw_state)
+      repos = raw_state[:repos]
+      unless repos.empty? || repos.keys.all? { |k| k.is_a?(String) }
+        raw_state[:repos] = repos.each_with_object({}) do |(k, v), h|
+          h[repo_state_key(k)] = v
+        end
+      end
+
+      models_state = raw_state[:models]
+      models_state.each_value do |per_model|
+        next if per_model.empty? || per_model.keys.all? { |k| k.is_a?(String) }
+
+        per_model.replace(per_model.each_with_object({}) do |(k, v), h|
+          h[repo_state_key(k)] = v
+        end)
+      end
+
+      raw_state
     end
 
     private
