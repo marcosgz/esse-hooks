@@ -255,7 +255,7 @@ class Esse::Hooks::Mixin < Module
 
     def normalize_state!(raw_state)
       repos = raw_state[:repos]
-      unless repos.empty? || repos.keys.all? { |k| k.is_a?(String) }
+      unless repos.empty? || repos.keys.all?(String)
         raw_state[:repos] = repos.each_with_object({}) do |(k, v), h|
           h[repo_state_key(k)] = v
         end
@@ -263,7 +263,7 @@ class Esse::Hooks::Mixin < Module
 
       models_state = raw_state[:models]
       models_state.each_value do |per_model|
-        next if per_model.empty? || per_model.keys.all? { |k| k.is_a?(String) }
+        next if per_model.empty? || per_model.keys.all?(String)
 
         per_model.replace(per_model.each_with_object({}) do |(k, v), h|
           h[repo_state_key(k)] = v
