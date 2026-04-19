@@ -2,6 +2,10 @@
 
 This gem is an internal component for the [esse](https://github.com/marcosgz/esse) project. It provides a plugin to add hooks to the [esse-active_record](https://github.com/marcosgz/esse-active_record) and [esse-sequel](https://github.com/marcosgz/esse-sequel) plugins.
 
+## Documentation
+
+Full guides, hook lifecycle, and API reference are published at **[gems.marcosz.com.br/esse-hooks](https://gems.marcosz.com.br/esse-hooks/)** — part of the [marcosgz Ruby gem catalogue](https://gems.marcosz.com.br).
+
 ## Installation
 
 Add this line to your application's Gemfile:
