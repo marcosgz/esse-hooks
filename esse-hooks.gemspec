@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Hooks extensions for Esse"
   spec.description = "A set of hooks extensions for Esse, the Ruby ElasticSearch and OpenSearch client."
   spec.homepage = "https://github.com/marcosgz/esse-hooks"
-  spec.license = "MIT"
+  spec.license = "GPL-3.0-or-later"
   spec.required_ruby_version = ">= 2.7.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
